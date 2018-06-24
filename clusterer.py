@@ -19,14 +19,11 @@ class Clusterer:
         self.N = self.X.shape[0]
         self.k = self.X.shape[1]
         self.K = 10
-        # sklearn k-means comparison
         '''
-        start = time.time()
+        # sklearn k-means comparison
         clusterer = KMeans(n_clusters=self.K)
         self.labels = clusterer.fit_predict(self.X)
         self.evaluate()
-        end = time.time()
-        print(end-start)
         '''
         '''
         # sklearn spectral comparison
@@ -40,18 +37,15 @@ class Clusterer:
         # k-Means process
         self.labels = np.zeros(self.N)
         print(self.labels.shape)
-        start = time.time()
         #self.preprocessing()
         self.input_initialization()
         self.EM()
         self.evaluate()
-        end = time.time()
-        print(end-start)
 
     def fetch_input(self):
         mat = sio.loadmat("mnist.mat")
-        data = mat['data'][0:1000]
-        label = mat['label'][:,0:1000].flatten()
+        data = mat['data']
+        label = mat['label'].flatten()
         print(data.shape)
         print(label.shape)
         return data, label
@@ -84,7 +78,7 @@ class Clusterer:
                 #dist_list[j] = dist[0][0]
             # normalization
             dist_list = dist_list / np.sum(dist_list)
-            print(dist_list)
+            #print(dist_list)
             # construct probability distribution
             prob_distribution = dist_list.cumsum()
             # simulate the probability of choosing a centroid
@@ -126,9 +120,12 @@ class Clusterer:
             max_iter -= 1
 
     def evaluate(self):
-        score = metrics.adjusted_mutual_info_score(self.groundtruth, self.labels)
-        print(score)
+        print(metrics.adjusted_mutual_info_score(self.groundtruth, self.labels))
 
 
 if __name__ == "__main__":
-    c = Clusterer()
+    for i in range(5):
+        start = time.time()
+        c = Clusterer()
+        end = time.time()
+        print(end-start)

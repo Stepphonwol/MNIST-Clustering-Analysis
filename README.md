@@ -1,10 +1,19 @@
-## k-Means
-### note that all the scores are based on AMI
+### 彭显敬 2016141462055 MNIST Clustering Analysis
+### all the scores are based on AMI
 ### number of clusters is fixed at 10
+### all the experiments were done in 
+- MacBook Air 1.8 GHz Intel Core i5
+### the source code and this report are available at
+- https://github.com/Stepphonwol/MNIST-Clustering-Analysis
+### This report could be divided into three parts
+- Experiment and analysis of k-Means
+- Experiment and analysis of Spectral Clustering
+- Conclusion, problems and expectation
+## k-Means
 ### basic initialization
 $$\sigma*np.random.rand(self.k)+\mu$$
 where $\sigma$ is the standard deviation of the data set $\chi$, $\mu$ is the mean of $\chi$.
-#### N = 1000 iterating 100 times no preprocessing
+#### N = 1000 iterating 100 times
 | | BASIC | sklearn |
 | - | :-: | :-: |
 | | 0.4856 54.36s | 0.5016 0.9526 |
@@ -14,7 +23,7 @@ where $\sigma$ is the standard deviation of the data set $\chi$, $\mu$ is the me
 | | 0.5109 57.20s | 0.5300 0.8867 |
 | average | **0.4968** 57.72s | **0.5195** 0.8994s |
 | variance | **0.0005** 3.89 | **0.0001** 0.001 |
-#### N = 10000 iterating 100 times no preprocessing
+#### N = 10000 iterating 100 times
 | | BASIC | sklearn |
 | - | :-: | :-: |
 | | 0.4830 578.11s | 0.5130 10.91s |
@@ -28,10 +37,10 @@ where $\sigma$ is the standard deviation of the data set $\chi$, $\mu$ is the me
 - Basic k-Means is not sensitive to the size of the data set. One possible reason is that the initialization method chooses the initial centroids **too uniformly** which fail to depict the exact distribution of $\chi$.
 - It's too difficult to set the threshold of k-Mean's convergence. Thus, the times of iterating is strictly controlled.
 ### ++ initialization
-- choose one centroid randomly from $\chi$
-- for each $x$ in $\chi$, calculate the distance $D(x)$ from $x$ to its nearest neighbors in all the centroids choosen
+- Choose one centroid randomly from $\chi$
+- For each $x$ in $\chi$, calculate the distance $D(x)$ from $x$ to its nearest neighbors in all the centroids choosen
 - draw a centroid $x'$ in $\chi$ with the probability $\frac{D(x')}{\sum D(x)}$
-- repeat the two steps above until k centers have been chosen
+- Repeat the two steps above until k centers have been chosen
 ```PYTHON
         for i in range(1, self.K):
             dist_list = np.array([min(np.linalg.norm(c - x) for c in self.centroids) for x in self.X])
@@ -82,7 +91,7 @@ where $\sigma$ is the standard deviation of the data set $\chi$, $\mu$ is the me
 #### $k$ : number of neighbors when building the KNN graph
 #### first attempt
 - Choose k as the number of clusters, 10
-- In this very first experiment of spectral clustering, I accidentally set the similarity as the euclidean distance, as the code followed. In the rest of the experiments, the similarity was set as $\frac{1}{1 + distance}$. A discussion between those metrics is also included in this report. 
+- In this very first experiment of spectral clustering, I accidentally set the similarity as the euclidean distance, as the code followed. In the rest of the experiments, the similarity was set as $\frac{1}{1 + distance}$. A discussion between these two metrics is also included in this report. 
 ```PYTHON
         tree = BallTree(self.X)
         for i in range(self.N):
@@ -92,7 +101,7 @@ where $\sigma$ is the standard deviation of the data set $\chi$, $\mu$ is the me
                 self.W[i][j] = similarity
                 self.W[j][i] = similarity
 ```
-- note that in the previous experiments, we could not tell whether k-Means++ is better than k-Means. Thus, we have to decide one now.
+- Note that in the previous experiments, we could not tell whether k-Means++ is better than k-Means. Thus, we have to decide one now.
 ##### a comparison between k-Means++ and basic k-Means
 | | ++ | BASIC |
 | - | :-: | :-: |
@@ -111,7 +120,7 @@ where $\sigma$ is the standard deviation of the data set $\chi$, $\mu$ is the me
 ##### conclusion
 - When $\chi$ is reduced to 10 dimensions by spectral analysis during which the level of redundancy declines, k-Means++ shows its superiority over basic k-Means.
 - However, spectral clustering does not overperform k-Means++ a lot when $k$ is set as 10, thus, we need to tune the parameter $k$.
-- At the beginning of the experiment, I was not aware of the use of sparse matrix, and adopt numpy to do all the inversion and eigenvalue decomposition, which took a lot of time. Thus, all the tests were all first based on 1000 samples. **And I started to think maybe there is some sort of connection between the small samples and big samples. More specifically, a good $k$ on small samples may still be a good $k$ on big samples.** Based on assumptions and targets above, we have the following results.
+- At the beginning of the experiment, I was not aware of the use of sparse matrix, and adopt numpy to do all the inversion and eigenvalue decomposition, which took a lot of time. Thus, all the tests were all first based on 1000 samples. **And I started to think maybe there is some sort of connection between the small samples and big samples. More specifically, a good $k$ on small samples may still be a good $k$ on big samples.** Based on assumptions and targets above, the following experiments were conducted.
 #### N=1000 k-Means++ iterating 100 times (using numpy)
 | | $k=3$ | $k=4$ | $k=5$ | $k=6$ | $k=7$ | $k=8$ | $k=9$ | $k=10$ | $k=11$ |
 | - | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
@@ -138,8 +147,62 @@ where $\sigma$ is the standard deviation of the data set $\chi$, $\mu$ is the me
 | average | | **0.6744** | **0.7039** | **0.6663** | **0.6738** | **0.6472** | **0.6614** | **0.6337** | **0.6293** |
 | variance | | **0.0021** | **0.0007** | **0.0013** | **0.0003** | **0.0001** | **0.0002** | **0.0010** | **0.0022** |
 ##### conclusion
-- The performance of spectral clustering with KNN similarity graph based on the inverse of euclidean distance varied from small data set to big data set.
+- The performance of spectral clustering with KNN similarity graph based on the inverse of euclidean distance varied from small data set to big data set. It turns out that a good $k$ on small samples is not necessarilly a good $k$ on big samples.
     - When $N=1000$, $k=7$ is clearly the best one(**0.5368**) which outperformed other $k$ a lot.
     - When $N=10000$, $k=5$ is clearly the best one(**0.7039**) which outperformed other $k$ a lot.
-- Also note that when $N=10000$, the overall variance of AMI is bigger than $N=1000$. For some values of $k$ far away from the $5$, they also did a good job.
- 
+    - Apparently, the reason is that for different sizes of the data set, different similarity graphs are constructed, thus, different graph cut are being made.
+- Also note that when $N=10000$, the overall variance of AMI is bigger than $N=1000$. And for some values of $k$ far away from the $5$, they also did a good job.
+#### About the Distance Metric
+- In the former experiments, I chose euclidean distance as the metric. However, it's common knowledge that in high dimensions (in this case, 784 dimensions), it's hard to tell the close neighbors from the distant neighbors. In other words, data points become uniformly distant from each other in high dimensions. To solve this problem, I decided to try on Manhattan distance metric.
+- Before entering the comparison between euclidean distance and manhattan distance, let's first compare two different definitions of similarity:
+    - set the distance as similarity directly
+    - set $\frac{1}{1+distance}$ as the similarity
+    (note that the first definition is not a strict one, because for two identical data points, their similarity is not one but zero.)
+
+| average AMI and variance | $distance$ | $\frac{1}{1+distance}$ |
+| - | :-: | :-: |
+| $k=4$ | **0.6615** 0.0114 | **0.6744** 0.0021 |
+| $k=5$ | **0.6355** 0.0018 | **0.7039** 0.0007 |
+| $k=6$ | **0.6528** 0.0011 | **0.6663** 0.0013 |
+| $k=7$ | **0.6740** 0.0018 | **0.6738** 0.0003 |
+| $k=8$ | **0.6091** 2.04e-5 | **0.6472** 0.0001 |
+- Apparently, the second definition is better than the first one.
+##### a comparison between Manhattan distance and Euclidean distance
+based on similarity metric : $\frac{1}{1+distance}$
+| average AMI and variance | $L1$ | $L2$ |
+| - | :-: | :-: |
+| $k=4$ | **0.6601** 0.0009 | **0.6744** 0.0021 |
+| $k=5$ | **0.6474** 0.0012 | **0.7039** 0.0007 |
+| $k=6$ | **0.6410** 0.0007 | **0.6663** 0.0013 |
+| $k=7$ | **0.6352** 0.0006 | **0.6738** 0.0003 |
+| $k=8$ | **0.6242** 0.0021 | **0.6472** 0.0001 |
+##### conclusion
+- Euclidean distance is better than manhattan distance, when based on the similarity definition $\frac{1}{1+distance}$.(as for why, I don't know)
+#### Final Attempt
+- Another definition of similarity : 
+$$ 1-\frac{distance}{max(distance)}$$
+set $k=5$ (the tuned parameter)
+
+| | L1 | L2 |
+| - | :-: | :-: |
+| 1 | **0.7024** 810.94s | **0.7285** 965.14s |
+| 2 | **0.6944** 796.54s | **0.7225** 1297.29s |
+| 3 | **0.6314** 820.54s | **0.7346** 1045.46s |
+| 4 | **0.5601** 831.28s | **0.6750** 965.65s |
+| 5 | **0.6972** 789.57s | **0.7277** 984.21s |
+| average & variance | **0.6571** 0.0030 | **0.7177** 0.0005 |
+##### conclusion
+- The new definition didn't lead to a substantial improvement.
+## Final Conclusion 
+### number in the bracket indicates average AMI score and variance
+- This report began at basic k-Means(**0.4866**, 7.16e-5), to k-Means++(**0.4852**, 0.0005), trying to address the problem of initialization. No big improvement here.
+- Then Spectral Clustering is introduced. First, a fully-connected graph based on RBF kernel(**0.4546**, 0.0007) and cosine similarity(**0.4811**, 0.0007) is used, which generates even poorer results than k-Means.
+- Then Spectral Clustering based on KNN graph and euclidean distance is adopted. Due to the limitation of computational sources, a small sampe $N=1000$ was first used to tune the parameter $k$, which mounted at $k=7$(**0.5386**, 0.0007). 
+- After using scipy.sparse, the calculation was significantly boosted. Thus, $N=10000$ was tested. The parameter $k$ was tuned at $5$(**0.7039**, 0.0007)
+- Different definitions of distance-based similarity and differnet distances(L1 and L2) were tested. The winner is L2 norm with the similarity definition : $1-\frac{distance}{max(distance)}$ (**0.7177**, 0.0005)
+## Problems and Expectation
+- Due to the limitation of computational sources, the experiments are not enough.
+- k-Means++ didn't work as I had expected.
+- Too much time was spent on tuning the parameter and determing the optimum distance metric and similarity definition. The method of metric learning may be introduced.
+
+
